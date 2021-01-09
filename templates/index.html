@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crystal</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
+</head>
+<body>
+    <div id = "articles">
+        <div id="header-box"><img class = "header" src="{{url_for('static', filename='logo.png')}}"></div>
+        <form class="input">
+            <div id="row1">
+                <div id = "grade-wrapper">
+                    <select id="grade">
+                        <option value="0">Select Grade</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+                <div id = "sentimentality-wrapper">
+                    <select id="sentimentality">
+                        <option value="2">Sentiment</option>
+                        <option value="1">Positive</option>
+                        <option value="0">Negative</option>
+                    </select>
+                </div>
+                <div id = "subjectivity-wrapper">
+                    <select id="subjectivity">
+                        <option value="2">Subjectivity</option>
+                        <option value="1">High</option>
+                        <option value="0">Low</option>
+                    </select>
+                </div>
+                
+            </div>
+            <div id="button-wrapper"><button type="button" onclick="xmlrequest()">Filter!</button></div>
+        </form>
+        <div id = "add"></div>
+    </div>
+    <script>
+        function xmlrequest(){
+            var xmlHttp = new XMLHttpRequest();
+            grade = document.getElementById("grade").value;
+            subjectivity = document.getElementById("subjectivity").value;
+            sentimentality = document.getElementById("sentimentality").value;
+            var send = document.location.href + grade + "/" + subjectivity + "/" + sentimentality
+            xmlHttp.open("GET", send, false);
+            xmlHttp.send(null);
+            var response = xmlHttp.responseText;
+            console.log(response);
+            document.getElementById("add").innerHTML = "";
+            JSON.parse(response).forEach(display);
+        }
+        function display(value) {
+            m = '<div class = "article-box"><div class = "article">'
+            m += '<img class = "logo" src="{{url_for("static", filename="nyt.png")}}">'
+            console.log(value["subjectivity"])
+            var state;
+            if (value["sentimentality"] > 0) {
+                state = "Positive ";
+            } else if (value["sentimentality"] == 0) {
+                state = "Neutral ";
+            } else {
+                state = "Negative ";
+            }
+            m += '<p class="info"><a href="' + value["link"] + '">' + value["title"] + '</a><br>Date Published: ' + value["date"] + '<br>Grade Level: ' + value["grade"] + '<br>Subjectivity: ' + value["subjectivity"].toFixed(3) + '<br>Sentiment: ' + state + value["sentimentality"].toFixed(3) + '</p>'
+            m += '<p class="description">' + value["description"] + '<br></p>'
+            m += '</div></div>'
+            document.getElementById("add").innerHTML += m;
+        }
+        
+    </script>
+</body>
+</html>
